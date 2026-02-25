@@ -28,13 +28,20 @@ sudo apt-get install postgresql-client-17
 
 ### Install dbm
 
+**Clone and install locally:**
 ```bash
-npm install -g dbm
+git clone https://github.com/leadsgen-tech/db-manager.git
+cd db-manager
+npm install
+npm link  # Makes 'dbm' available globally
 ```
 
-Or run directly with npx:
+**Or run directly without installation:**
 ```bash
-npx dbm
+git clone https://github.com/leadsgen-tech/db-manager.git
+cd db-manager
+npm install
+npm start
 ```
 
 ## Usage
@@ -251,6 +258,41 @@ The tool automatically adds `sslmode=require` for dump operations and uses `{ re
 ## License
 
 MIT
+
+## Publishing to npm (Optional)
+
+To make the package available via `npm install -g dbm`, you need to publish it:
+
+1. **Update package.json** with additional fields:
+   ```json
+   {
+     "name": "@leadsgen-tech/dbm",
+     "keywords": ["postgresql", "supabase", "database", "cli", "migration"],
+     "author": "LeadsGen Tech",
+     "license": "MIT",
+     "repository": {
+       "type": "git",
+       "url": "https://github.com/leadsgen-tech/db-manager.git"
+     },
+     "bugs": {
+       "url": "https://github.com/leadsgen-tech/db-manager/issues"
+     },
+     "homepage": "https://github.com/leadsgen-tech/db-manager#readme"
+   }
+   ```
+
+2. **Create npm account** at https://www.npmjs.com/signup
+
+3. **Login and publish:**
+   ```bash
+   npm login
+   npm publish --access public
+   ```
+
+After publishing, users can install with:
+```bash
+npm install -g @leadsgen-tech/dbm
+```
 
 ## Contributing
 
