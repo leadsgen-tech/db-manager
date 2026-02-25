@@ -273,41 +273,6 @@ The tool automatically adds `sslmode=require` for dump operations and uses `{ re
 
 MIT
 
-## Publishing to npm (Optional)
-
-To make the package available via `npm install -g dbm`, you need to publish it:
-
-1. **Update package.json** with additional fields:
-   ```json
-   {
-     "name": "@leadsgen-tech/dbm",
-     "keywords": ["postgresql", "supabase", "database", "cli", "migration"],
-     "author": "LeadsGen Tech",
-     "license": "MIT",
-     "repository": {
-       "type": "git",
-       "url": "https://github.com/leadsgen-tech/db-manager.git"
-     },
-     "bugs": {
-       "url": "https://github.com/leadsgen-tech/db-manager/issues"
-     },
-     "homepage": "https://github.com/leadsgen-tech/db-manager#readme"
-   }
-   ```
-
-2. **Create npm account** at https://www.npmjs.com/signup
-
-3. **Login and publish:**
-   ```bash
-   npm login
-   npm publish --access public
-   ```
-
-After publishing, users can install with:
-```bash
-npm install -g @leadsgen-tech/dbm
-```
-
 ## Contributing
 
 Contributions welcome! Please open an issue or PR on GitHub.
