@@ -26,6 +26,13 @@ brew install postgresql@17
 sudo apt-get install postgresql-client-17
 ```
 
+**Windows:**
+1. Download PostgreSQL from https://www.postgresql.org/download/windows/
+2. Run the installer (includes command-line tools)
+3. Add PostgreSQL `bin` directory to your PATH:
+   - Default location: `C:\Program Files\PostgreSQL\17\bin`
+   - Or the tool will auto-detect it
+
 ### Install dbm
 
 **Clone and install locally:**
@@ -184,12 +191,19 @@ Example: `myproject_full_2026-02-25T10-30-00.dump`
 ### PostgreSQL Tool Detection
 
 Automatically searches for PostgreSQL binaries in common locations:
-1. Homebrew locations (macOS):
-   - `/opt/homebrew/opt/postgresql@17/bin`
-   - `/opt/homebrew/opt/postgresql@16/bin`
-   - `/opt/homebrew/opt/postgresql@15/bin`
-2. Standard Linux locations
-3. Falls back to system PATH
+
+**Windows:**
+- `C:\Program Files\PostgreSQL\{17,16,15}\bin`
+- `C:\Program Files (x86)\PostgreSQL\{17,16,15}\bin`
+- System PATH
+
+**macOS:**
+- `/opt/homebrew/opt/postgresql@{17,16,15}/bin` (Apple Silicon)
+- `/usr/local/opt/postgresql@{17,16,15}/bin` (Intel)
+- System PATH
+
+**Linux:**
+- System PATH
 
 Prefers newer versions (v17 > v16 > v15).
 

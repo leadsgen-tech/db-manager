@@ -192,7 +192,16 @@ function runShellCommandLive(cmd: string, args: string[]): Promise<number> {
 // ─── PostgreSQL Binary Resolution ────────────────────────────
 
 // Try to find the newest pg tools (v17 > v16 > v15 > fallback to PATH)
-const PG_SEARCH_PATHS = [
+const isWindows = os.platform() === 'win32';
+
+const PG_SEARCH_PATHS = isWindows ? [
+  'C:\\Program Files\\PostgreSQL\\17\\bin',
+  'C:\\Program Files\\PostgreSQL\\16\\bin',
+  'C:\\Program Files\\PostgreSQL\\15\\bin',
+  'C:\\Program Files (x86)\\PostgreSQL\\17\\bin',
+  'C:\\Program Files (x86)\\PostgreSQL\\16\\bin',
+  'C:\\Program Files (x86)\\PostgreSQL\\15\\bin',
+] : [
   '/opt/homebrew/opt/postgresql@17/bin',
   '/opt/homebrew/opt/postgresql@16/bin',
   '/opt/homebrew/opt/postgresql@15/bin',
@@ -202,11 +211,12 @@ const PG_SEARCH_PATHS = [
 ];
 
 function findPgBin(name: string): string {
+  const binName = isWindows ? `${name}.exe` : name;
   for (const dir of PG_SEARCH_PATHS) {
-    const fullPath = path.join(dir, name);
+    const fullPath = path.join(dir, binName);
     if (existsSync(fullPath)) return fullPath;
   }
-  return name; // fallback to PATH
+  return binName; // fallback to PATH
 }
 
 const PG_DUMP = findPgBin('pg_dump');
@@ -235,7 +245,13 @@ async function checkPrerequisites(): Promise<boolean> {
   }
 
   if (!allOk) {
-    console.log(chalk.yellow('\n  Install PostgreSQL tools: brew install postgresql@17\n'));
+    if (isWindows) {
+      console.log(chalk.yellow('\n  Install PostgreSQL tools: https://www.postgresql.org/download/windows/\n'));
+    } else if (os.platform() === 'darwin') {
+      console.log(chalk.yellow('\n  Install PostgreSQL tools: brew install postgresql@17\n'));
+    } else {
+      console.log(chalk.yellow('\n  Install PostgreSQL tools: sudo apt-get install postgresql-client-17\n'));
+    }
   }
   return allOk;
 }
