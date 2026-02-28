@@ -5,6 +5,7 @@ Interactive PostgreSQL/Supabase database manager for comparing, exporting, and i
 ## Features
 
 - **📊 Compare Databases** - Side-by-side comparison of 2-3 databases with row counts and delta calculations
+- **🔎 Compare Table Data** - Row-level diff between two databases using primary key matching
 - **📦 Export Database** - Export full databases, schemas only, data only, or specific tables
 - **📥 Import Database** - Import with safety features including automatic backups and verification
 - **🔍 Inspect Dump Files** - Preview dump file contents without importing
@@ -17,16 +18,19 @@ Interactive PostgreSQL/Supabase database manager for comparing, exporting, and i
 - PostgreSQL tools (pg_dump, pg_restore, psql)
 
 **macOS:**
+
 ```bash
 brew install postgresql@17
 ```
 
 **Linux (Ubuntu/Debian):**
+
 ```bash
 sudo apt-get install postgresql-client-17
 ```
 
 **Windows:**
+
 1. Download PostgreSQL from https://www.postgresql.org/download/windows/
 2. Run the installer (includes command-line tools)
 3. Add PostgreSQL `bin` directory to your PATH:
@@ -36,6 +40,7 @@ sudo apt-get install postgresql-client-17
 ### Install dbm
 
 **Clone and install locally:**
+
 ```bash
 git clone https://github.com/leadsgen-tech/db-manager.git
 cd db-manager
@@ -44,6 +49,7 @@ npm link  # Makes 'dbm' available globally
 ```
 
 **Or run directly without installation:**
+
 ```bash
 git clone https://github.com/leadsgen-tech/db-manager.git
 cd db-manager
@@ -54,6 +60,7 @@ npm start
 ## Usage
 
 Simply run:
+
 ```bash
 dbm
 ```
@@ -68,6 +75,7 @@ You'll be presented with an interactive menu:
 
 ? What would you like to do?
   📊  Compare Databases
+  🔎  Compare Table Data
   📦  Export Database
   📥  Import Database
   🔍  Inspect Dump File
@@ -80,6 +88,7 @@ You'll be presented with an interactive menu:
 ### Compare Databases
 
 Compare 2 or 3 databases side-by-side:
+
 - Exact row counts for all tables
 - Delta calculations (for 2-database comparison)
 - Total database size
@@ -87,6 +96,7 @@ Compare 2 or 3 databases side-by-side:
 - Shows which database has more/fewer rows
 
 **Example output:**
+
 ```
 ┌──────────┬─────────────┬─────────────┬──────────┐
 │ Table    │ Production  │ Staging     │ Delta    │
@@ -97,19 +107,64 @@ Compare 2 or 3 databases side-by-side:
 └──────────┴─────────────┴─────────────┴──────────┘
 ```
 
+### Compare Table Data
+
+Dig deeper into differences with row-level comparison:
+
+- Automatically detects primary key (or unique column) for matching
+- Shows exact rows that exist in one database but not the other
+- **Column-level diffs**: detects rows with same PK but different values
+- Displays up to 10 differences per side with option to see all
+- **Export**: save diff results to CSV or JSON
+- **Performance**: batched PK fetching (5K/batch) for large tables with progress %
+- Handles edge cases: missing tables, no primary key, 100K+ row warnings
+
+**Example output:**
+
+```
+  Rows only in production (2)
+┌────┬─────────┬─────────────────────┬─────────────┐
+│ id │ name    │ email               │ created_at  │
+├────┼─────────┼─────────────────────┼─────────────┤
+│  4 │ Diana   │ diana@example.com   │ 2026-02-27  │
+│  5 │ Eve     │ eve@example.com     │ 2026-02-27  │
+└────┴─────────┴─────────────────────┴─────────────┘
+
+  Modified rows — same PK, different values (1)
+┌────┬────────┬──────────────────┬──────────────────┐
+│ id │ Column │ production value │ staging value    │
+├────┼────────┼──────────────────┼──────────────────┤
+│  2 │ email  │ old@example.com  │ new@example.com  │
+└────┴────────┴──────────────────┴──────────────────┘
+
+  Summary:
+  ● 2 rows only in production
+  ● 0 rows only in staging
+  ● 1 rows with column differences
+  ● users table has 3 total differences
+
+? Export diff results? (Use arrow keys)
+❯ No
+  Export as JSON
+  Export as CSV
+```
+
 ### Export Database
 
 Export options:
+
 - **Full** - Schema + data (complete backup)
 - **Data only** - Just the data (keeps schema separate)
 - **Schema only** - Structure without data
 - **Specific tables** - Choose exactly which tables to export
 
 **Formats:**
+
 - `.dump` (custom format) - Recommended for `pg_restore`, compressed
 - `.sql` (plain text) - Human-readable, can be edited
 
 **Features:**
+
 - Shows table preview before export
 - Configurable output path
 - Automatic SSL/TLS for Supabase connections
@@ -118,6 +173,7 @@ Export options:
 ### Import Database
 
 Import with safety features:
+
 - **Automatic backup** - Creates backup before importing (optional)
 - **Preview target** - See what's currently in the database
 - **Verification** - Automatically verify row counts after import
@@ -127,12 +183,14 @@ Import with safety features:
   - Append (add data without deleting)
 
 **Supports:**
+
 - `.dump` files (via pg_restore)
 - `.sql` files (via psql)
 
 ### Inspect Dump Files
 
 Preview dump file contents without importing:
+
 - Shows schema objects count
 - Lists tables with data
 - File size and metadata
@@ -151,11 +209,13 @@ postgresql://user:password@host:port/database
 **Supabase examples:**
 
 Direct connection:
+
 ```
 postgresql://postgres.[PROJECT_REF]:[PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres
 ```
 
 Transaction pooler (recommended for serverless):
+
 ```
 postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres
 ```
@@ -165,6 +225,7 @@ postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-us-east-1.pooler.supabase.c
 Default export directory: `~/db-exports/`
 
 Files are automatically named with:
+
 - Database identifier
 - Export type
 - Timestamp
@@ -193,19 +254,44 @@ Example: `myproject_full_2026-02-25T10-30-00.dump`
 Automatically searches for PostgreSQL binaries in common locations:
 
 **Windows:**
+
 - `C:\Program Files\PostgreSQL\{17,16,15}\bin`
 - `C:\Program Files (x86)\PostgreSQL\{17,16,15}\bin`
 - System PATH
 
 **macOS:**
+
 - `/opt/homebrew/opt/postgresql@{17,16,15}/bin` (Apple Silicon)
 - `/usr/local/opt/postgresql@{17,16,15}/bin` (Intel)
 - System PATH
 
 **Linux:**
+
 - System PATH
 
 Prefers newer versions (v17 > v16 > v15).
+
+## Project Structure
+
+```
+db-manager/
+├── index.ts                    — Entry point (banner + menu only, ~90 lines)
+├── src/
+│   ├── types.ts                — Shared interfaces (TableInfo, DiffResult)
+│   ├── utils.ts                — Pure utility functions (maskUrl, formatNumber, etc.)
+│   ├── db.ts                   — Database helpers (createSql, testConnection, etc.)
+│   ├── shell.ts                — Shell commands + PG binary resolution
+│   └── workflows/
+│       ├── compare.ts          — Compare Databases workflow
+│       ├── compareData.ts      — Compare Table Data (column diffs, export, batching)
+│       ├── export.ts           — Export Database workflow
+│       ├── import.ts           — Import Database workflow
+│       └── inspect.ts          — Inspect Dump File workflow
+├── tests/
+│   └── helpers.test.ts         — 30 unit tests for utility functions
+├── AI_WORKFLOW.md              — AI collaboration documentation
+└── package.json
+```
 
 ## Development
 
@@ -224,9 +310,18 @@ npm run dev
 ```
 
 Or with tsx directly:
+
 ```bash
 npx tsx index.ts
 ```
+
+### Tests
+
+```bash
+npm test
+```
+
+Runs 30 unit tests covering all utility functions (maskUrl, extractLabel, isLocalUrl, validateUrl, formatNumber, timestamp, formatCellValue, ensureSslForDump).
 
 ### Build
 
@@ -246,6 +341,7 @@ npm run build
 ### "pg_dump not found"
 
 Install PostgreSQL client tools:
+
 ```bash
 # macOS
 brew install postgresql@17
